@@ -1,3 +1,22 @@
+basicTest <- function(seq1, seq2) {
+  currTime <- proc.time()
+  gotohRes <- doGotoh(seq1, seq2)
+  gotohTime <- (proc.time() - currTime)
+  
+  currTime <- proc.time()
+  altEricRes <- doAltschulErickson(seq1, seq2)
+  altEricTime <- (proc.time() - currTime)
+  
+  currTime <- proc.time()
+  biostrRes <- pairwiseAlignment(paste(seq1, collapse=" "), paste(seq2, collapse=" "), gapOpening=-12, gapExtension=-10, scoreOnly=FALSE)
+  biostrTime <- (proc.time() - currTime)
+  
+  printTestResult(seq1, seq2, 
+                  gotohRes$aStr, gotohRes$bStr, gotohTime[3],
+                  altEricRes$aStr, altEricRes$bStr, altEricTime[3],
+                  paste(pattern(biostrRes), collapse=" "), paste(subject(biostrRes), collapse=" "), biostrTime[3] )
+}
+
 #############################################
 ## Test function for assert Gotoh, Altschul-Erickson and BIostrings implementation
 ## of matching sequences
@@ -8,7 +27,7 @@
 ## repeatNo - number of tests - default is 1
 ## printOnlySummaryTime - Print only summary times (if no, prints results of each test run)
 ##
-test <- function(seq1cnt=30, seq2cnt=10, repeatNo=1, printOnlySummaryTime=FALSE) {
+timedTest <- function(seq1cnt=30, seq2cnt=10, repeatNo=1, printOnlySummaryTime=FALSE) {
   require(Biostrings)
 
   gotohSumTime <- 0
@@ -35,25 +54,10 @@ test <- function(seq1cnt=30, seq2cnt=10, repeatNo=1, printOnlySummaryTime=FALSE)
     biostrSumTime <- biostrSumTime + biostrTime[3]
 
     if(!printOnlySummaryTime) {
-      print("=========================== Generated sequences: ==============================")
-      print(paste(seq1, collapse=" "))
-      print(paste(seq2, collapse=" "))
-      print("=============================== Gotoh results =================================")
-      print(gotohRes$aStr)
-      print(gotohRes$bStr)
-      #   print(gotohTime)
-      print(paste0("Gotoh time [s]: ", gotohTime[3]))
-      print("========================= Altschul-Erickson results ===========================")
-      print(altEricRes$aStr)
-      print(altEricRes$bStr)
-      #   print(altEricTime)
-      print(paste0("Altschul-Erickson time [s]: ", altEricTime[3]))
-      print("============================= Biostrings results ==============================")
-      print(paste(pattern(biostrRes), collapse=" "))
-      print(paste(subject(biostrRes), collapse=" "))
-      #   print(biostrTime)
-      print(paste0("Biostrings time [s]: ", biostrTime[3]))
-      print("===============================================================================")
+      printTestResult(seq1, seq2, 
+                      gotohRes$aStr, gotohRes$bStr, gotohTime[3],
+                      altEricRes$aStr, altEricRes$bStr, altEricTime[3],
+                      paste(pattern(biostrRes), collapse=" "), paste(subject(biostrRes), collapse=" "), biostrTime[3] )
     } # if
   } # for
 
@@ -61,6 +65,25 @@ test <- function(seq1cnt=30, seq2cnt=10, repeatNo=1, printOnlySummaryTime=FALSE)
   print(paste0("Summary Gotoh time [s]: ", gotohSumTime))
   print(paste0("Summary Altschul-Erickson time [s]: ", altEricSumTime))
   print(paste0("Summary Biostrings time [s]: ", biostrSumTime))
+}
+
+printTestResult <- function(s1, s2, g1, g2, gt, ae1, ae2, aet, b1, b2, bt) {
+  print("=========================== Generated sequences: ==============================")
+  print(paste(s1, collapse=" "))
+  print(paste(s2, collapse=" "))
+  print("=============================== Gotoh results =================================")
+  print(g1)
+  print(g2)
+  print(paste0("Gotoh time [s]: ", gt))
+  print("========================= Altschul-Erickson results ===========================")
+  print(ae1)
+  print(ae2)
+  print(paste0("Altschul-Erickson time [s]: ", aet))
+  print("============================= Biostrings results ==============================")
+  print(b1)
+  print(b2)
+  print(paste0("Biostrings time [s]: ", bt))
+  print("===============================================================================")
 }
 
 #############################################
