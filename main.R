@@ -50,7 +50,7 @@ timedTest <- function(seq1cnt=30, seq2cnt=10, repeatNo=1, printOnlySummaryTime=F
     altEricSumTime <- altEricSumTime + altEricTime[1]
 
     currTime <- proc.time()
-    biostrRes <- pairwiseAlignment(paste(seq1, collapse=" "), paste(seq2, collapse=" "), gapOpening=-12, gapExtension=-10, scoreOnly=FALSE)
+    biostrRes <- pairwiseAlignment(paste(seq1, collapse=" "), paste(seq2, collapse=" "), type="global", gapOpening=-12, gapExtension=-10, scoreOnly=FALSE)
     biostrTime <- (proc.time() - currTime)
     biostrSumTime <- biostrSumTime + biostrTime[1]
     
@@ -99,7 +99,7 @@ printTestResult <- function(s1, s2, g1, g2, gt, ae1, ae2, aet, b1, b2, bt) {
 ## distNEq - distance when chars from seq1 and seq2 are NOT equal
 ## u,v - coefficiency of linear gap penality function
 ##
-doGotoh <- function(seq1, seq2, distEq=0, distNEq=1, u=10, v=12) {
+doGotoh <- function(seq1, seq2, distEq=0, distNEq=1, u=1, v=2) {
   ## initialization of matrices
   dMatrix <- matrix(0, nrow=length(seq1) + 1, ncol=length(seq2) + 1)
   qMatrix <- matrix(0, nrow=length(seq1) + 1, ncol=length(seq2) + 1)
@@ -185,7 +185,7 @@ doGotoh <- function(seq1, seq2, distEq=0, distNEq=1, u=10, v=12) {
 ## seq2 - sequence 2
 ## v, u - affine gap cost coeff.
 ## dist - distance between different chars
-doAltschulErickson <- function(seq1, seq2, v=10, u=12, dist=1) {
+doAltschulErickson <- function(seq1, seq2, v=1, u=2, dist=1) {
   M = length(seq1)
   N = length(seq2)
 
@@ -299,25 +299,25 @@ doAltschulErickson <- function(seq1, seq2, v=10, u=12, dist=1) {
 
   align1 <- ""
   align2 <- ""
-  i <- M
-  j <- N
+  i <- M+1
+  j <- N+1
 
   while(a[i,j] != 0 || b[i,j] != 0 || c[i,j] != 0) {
     if(c[i,j] == 1) {
-      align1 <- paste(seq1[i], align1)
-      align2 <- paste(seq2[j], align2)
       i <- i-1
       j <- j-1
+      align1 <- paste(seq1[i], align1)
+      align2 <- paste(seq2[j], align2)
     }
     else if(a[i,j] == 1) {
+      i <- i-1
       align1 <- paste(seq1[i], align1)
       align2 <- paste("-", align2)
-      i <- i-1
     }
     else {
+      j <- j-1
       align1 <- paste("-", align1)
       align2 <- paste(seq2[j], align2)
-      j <- j-1
     }
   }
 
