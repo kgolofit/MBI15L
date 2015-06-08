@@ -12,14 +12,14 @@ basicTest <- function(seq1, seq2) {
   biostrTime <- (proc.time() - currTime)
   
   printTestResult(seq1, seq2, 
-                  gotohRes$aStr, gotohRes$bStr, gotohTime[3],
-                  altEricRes$aStr, altEricRes$bStr, altEricTime[3],
-                  paste(pattern(biostrRes), collapse=" "), paste(subject(biostrRes), collapse=" "), biostrTime[3] )
+                  gotohRes$aStr, gotohRes$bStr, gotohTime[1],
+                  altEricRes$aStr, altEricRes$bStr, altEricTime[1],
+                  paste(pattern(biostrRes), collapse=" "), paste(subject(biostrRes), collapse=" "), biostrTime[1] )
 }
 
 #############################################
 ## Test function for assert Gotoh, Altschul-Erickson and BIostrings implementation
-## of matching sequences
+## of matching sequences. Possible to run multiple times. Each run generates new sequences to match.
 ##
 ## Params:
 ## seq1cnt - sequence 1 length - default is 30
@@ -33,6 +33,7 @@ timedTest <- function(seq1cnt=30, seq2cnt=10, repeatNo=1, printOnlySummaryTime=F
   gotohSumTime <- 0
   altEricSumTime <- 0
   biostrSumTime <- 0
+  biostr2SumTime <- 0
 
   for(i in 1:repeatNo) {
     seq1 = sample(DNA_ALPHABET[1:4], size=seq1cnt, replace=TRUE)
@@ -41,23 +42,23 @@ timedTest <- function(seq1cnt=30, seq2cnt=10, repeatNo=1, printOnlySummaryTime=F
     currTime <- proc.time()
     gotohRes <- doGotoh(seq1, seq2)
     gotohTime <- (proc.time() - currTime)
-    gotohSumTime <- gotohSumTime + gotohTime[3]
+    gotohSumTime <- gotohSumTime + gotohTime[1]
 
     currTime <- proc.time()
     altEricRes <- doAltschulErickson(seq1, seq2)
     altEricTime <- (proc.time() - currTime)
-    altEricSumTime <- altEricSumTime + altEricTime[3]
+    altEricSumTime <- altEricSumTime + altEricTime[1]
 
     currTime <- proc.time()
     biostrRes <- pairwiseAlignment(paste(seq1, collapse=" "), paste(seq2, collapse=" "), gapOpening=-12, gapExtension=-10, scoreOnly=FALSE)
     biostrTime <- (proc.time() - currTime)
-    biostrSumTime <- biostrSumTime + biostrTime[3]
-
+    biostrSumTime <- biostrSumTime + biostrTime[1]
+    
     if(!printOnlySummaryTime) {
       printTestResult(seq1, seq2, 
-                      gotohRes$aStr, gotohRes$bStr, gotohTime[3],
-                      altEricRes$aStr, altEricRes$bStr, altEricTime[3],
-                      paste(pattern(biostrRes), collapse=" "), paste(subject(biostrRes), collapse=" "), biostrTime[3] )
+                      gotohRes$aStr, gotohRes$bStr, gotohTime[1],
+                      altEricRes$aStr, altEricRes$bStr, altEricTime[1],
+                      paste(pattern(biostrRes), collapse=" "), paste(subject(biostrRes), collapse=" "), biostrTime[1] )
     } # if
   } # for
 
@@ -174,14 +175,6 @@ doGotoh <- function(seq1, seq2, distEq=0, distNEq=1, u=10, v=12) {
     }
   }
 
-#   print(dMatrix)
-#   print(backMatrix)
-#
-#   print(seq1)
-#   print(seq2)
-#
-#   print(aString)
-#   print(bString)
   return(list("aStr" = aString, "bStr" = bString))
 }
 
@@ -195,9 +188,6 @@ doGotoh <- function(seq1, seq2, distEq=0, distNEq=1, u=10, v=12) {
 doAltschulErickson <- function(seq1, seq2, v=10, u=12, dist=1) {
   M = length(seq1)
   N = length(seq2)
-
-#   print(M)
-#   print(N)
 
   ## Step {1}
   P = matrix(nrow=M, ncol=N)
@@ -307,15 +297,6 @@ doAltschulErickson <- function(seq1, seq2, v=10, u=12, dist=1) {
     }
   }
 
-  #print(R)
-  #print(a)
-  #print(b)
-  #print(c)
-  #print(d)
-  #print(e)
-  #print(f)
-  #print(g)
-
   align1 <- ""
   align2 <- ""
   i <- M
@@ -339,8 +320,6 @@ doAltschulErickson <- function(seq1, seq2, v=10, u=12, dist=1) {
       j <- j-1
     }
   }
-  #print(align1)
-  #print(align2)
 
   return(list("aStr" = align1, "bStr" = align2))
 }
